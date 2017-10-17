@@ -1,7 +1,4 @@
 import mlaas.data_loader
-import time
-import mlaas.model_server
-
 from mlaas.model_trainer import Trainer
 from os.path import isfile
 
@@ -20,6 +17,3 @@ if not (isfile(data_file) and isfile(clf_file+".pkl")):
     t.save_model()
 if miss is not None:
     print miss
-
-time.sleep(5)
-mlaas.model_server.main(8080, {}, clf_file+".pkl", data_file)
