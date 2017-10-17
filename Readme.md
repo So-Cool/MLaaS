@@ -4,7 +4,7 @@
 ### Docker container ###
 ```
 docker build -t mlaas .
-docker run -it -p 8080:8080 mlaas
+docker run -it -e PORT=8080 -p 8080:8080 mlaas
 ```
 
 ### Standalone app ###
