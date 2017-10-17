@@ -27,7 +27,7 @@ RUN useradd -m -s $SHELL $USER
 USER $USER
 
 #ADD . $MLAAS
-RUN git clone --depth 1 https://github.com/So-Cool/MLaaS.git $WORK_DIR
+RUN git clone --depth 1 https://github.com/So-Cool/MLaaS.git $MLAAS
 RUN pip install --user -r $MLAAS/requirements.txt
 RUN pip install --user scipy==0.19.0
 ENV PYTHONPATH $PYTHONPATH:$MLAAS
