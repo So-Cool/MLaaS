@@ -33,9 +33,9 @@ class DataHolder(object):
             print "Loading data from pickles"
             data, data_header, data_class, data_map = self.load_pickled_data(pickled_aux_file, pickled_aux_file)
         elif pickled_aux_file is not None and pickled_aux_file is not None and raw_data_module is not None:
-            print "Too many data sources given (both module name and pickles"
+            raise Exception("Too many data sources given (both module name and pickles)")
         else:
-            print "Error 42"
+            raise Exception("Error 42")
 
         self.data = data
         self.data_header = data_header
@@ -54,11 +54,11 @@ class DataHolder(object):
                 elif i == self.data_class:
                     pass
                 else:
-                    print "*%s* header could not be found" % i
+                    raise Exception("*%s* header could not be found" % i)
                 if i in dmk:
                     dm[i] = self.data_map[i]
                 else:
-                    print "*%s* key could not be found" % i
+                    raise Exception("*%s* key could not be found" % i)
             self.data_header = dh
             self.data_map = dm
             self.data = self.data[self.data_header+[self.data_class]]
@@ -116,7 +116,7 @@ class DataHolder(object):
             elif isinstance(self.data_map[i]["map"], dict):
                 feature_type["categorical"][i] = self.data_map[i]["name"]
             else:
-                print "%s: Unknown feature type!" % i
+                raise Exception("%s: Unknown feature type!" % i)
 
         return feature_type
 
@@ -181,7 +181,7 @@ class DataHolder(object):
                     # replace name with codename
                     f = ft[t]
                 else:
-                    print "Unknown feature!"
+                    raise Exception("Unknown feature!")
                     continue
 
                 # Unify feature values
@@ -198,7 +198,7 @@ class DataHolder(object):
                             else: # float
                                 dd[f] = of
                         except ValueError:
-                            print "Unknown feature value (numerical)!"
+                            raise Exception("Unknown feature value (numerical)!")
                 elif isinstance(feature_map[f]["map"], dict):
                     if i[t] in feature_map[f]["map"].keys():
                         dd[f] = i[t]
@@ -208,10 +208,10 @@ class DataHolder(object):
                                 dd[f] = v
                                 break
                     else:
-                        print "Unknown feature value (categorical)!"
+                        raise Exception("Unknown feature value (categorical)!")
                         continue
                 else:
-                    print "Unrecognised feature type!"
+                    raise Exception("Unrecognised feature type!")
             out.append(dd)
 
         return out
