@@ -181,7 +181,7 @@ class DataHolder(object):
                     # replace name with codename
                     f = ft[t]
                 else:
-                    raise Exception("Unknown feature!")
+                    raise Exception("Unknown feature: *%s*!" % t)
                     continue
 
                 # Unify feature values
@@ -240,6 +240,9 @@ class DataHolder(object):
                 d[feature_name] = feature_value
             humanable.append(d)
         return humanable
+
+    def interpret_classes(self, classes):
+        return [self.data_map[self.data_class]["map"][i] for i in classes]
 
     def dump(self, filename, keep_data=False):
         deep_self = copy.deepcopy(self)

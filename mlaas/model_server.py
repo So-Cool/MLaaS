@@ -1,9 +1,6 @@
-import mlaas.data_loader
-
 import argparse
 import json
 import os
-import pandas as pd
 import shutil
 import sys
 import time
@@ -11,7 +8,14 @@ import traceback
 
 from flask import Flask, request, jsonify
 from mlaas import MLAAS_ROOT
-from sklearn.externals import joblib
+from mlaas.server_tools import json_prediction, load_model
+
+# API components
+import conversation.alexa
+
+# These will be populated at training time
+model = None
+data_holder = None
 
 # command line arguments parser
 parser = argparse.ArgumentParser(description="Machine Learning as a Service")
@@ -22,9 +26,8 @@ parser.add_argument("-d", "--data", required=True, dest="data", type=str, help=(
 
 app = Flask(__name__)
 
-# These will be populated at training time
-model = None
-data_holder = None
+# Register Flask modules
+app.register_blueprint(conversation.alexa.alexa_api)
 
 @app.route('/')
 def index():
@@ -33,26 +36,10 @@ def index():
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
-        json_ = request.json
-        query = data_holder.get_prediction_ready(json_)
-        query.fillna(value=0, inplace=True)
-
-        prediction = list(model.predict(query))
-
-        return jsonify({data_holder.data_class: prediction})
+        data_class, prediction = json_prediction(data_holder, model, request.json)
+        return jsonify({data_class: prediction})
     except Exception, e:
         return jsonify({'error': str(e), 'trace': traceback.format_exc()})
-
-def load_model(model_file, data_file):
-    global data_holder
-    global model
-    try:
-        data_holder = mlaas.data_loader.load(data_file)
-        model = joblib.load(model_file)
-    except Exception, e:
-        print 'error', ': ', str(e)
-        print 'trace', ': ', traceback.format_exc()
-        print 'message', ': ', "Error 42"
 
 if __name__ == '__main__':
     # parse arguments
@@ -64,5 +51,9 @@ if __name__ == '__main__':
     with open(config_file, "r") as f:
         config = json.load(f)
 
-    load_model(args.model, args.data)
+    data_holder, model = load_model(args.model, args.data)
+    # share these with API components
+    conversation.alexa.data_holder = data_holder
+    conversation.alexa.model = model
+
     app.run(host='0.0.0.0', port=args.port, debug=True)
