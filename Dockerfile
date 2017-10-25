@@ -37,9 +37,9 @@ RUN mkdir -p $WORK_DIR \
 USER $USER
 WORKDIR $WORK_DIR
 
-ENV DATA_FILE "data_holder_2_15_17.pkl"
+ENV DATA_FILE "data_holder_13_15.pkl"
 ENV CLF_FILE "sklearn.tree.DecisionTreeClassifier(min_samples_split=3)"
-ENV FEATURES "A2, A15, A17"
+ENV FEATURES "A13, A15"
 RUN python $MLAAS/train.py -m "$CLF_FILE" -d "$DATA_FILE" -f "$FEATURES"
 
 EXPOSE 8080
