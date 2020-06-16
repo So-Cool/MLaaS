@@ -1,47 +1,32 @@
-FROM ubuntu:16.04
+FROM frolvlad/alpine-python-machinelearning
 
-MAINTAINER Kacper Sokol <ks1591@my.bristol.ac.uk>
+MAINTAINER Kacper Sokol <ks1591@bristol.ac.uk>
 
-ARG DEBIAN_FRONTEND=noninteractive
+RUN pip install --upgrade pip &&\
+  pip install Flask>=0.12.2
 
-USER root
+ENV USER="myuser"
+ENV HOME="/home/$USER"
 
-RUN apt-get update \
-  && apt-get upgrade -y
-RUN apt-get install -y \
-    git \
-    python \
-    python-pip
-RUN pip install --upgrade pip
-
-ENV SHELL /bin/bash
-ENV USER jovyan
-ENV UID 1000
-ENV HOME /home/$USER
-ENV MLAAS $HOME/MLaaS
-ENV WORK_DIR $HOME/workspace
-ENV PYTHONPATH $PYTHONPATH:$MLAAS
-
-# Create jovyan user with UID=1000 and in the 'users' group \ -N -u $SWISH_UID
-RUN useradd -m -s $SHELL $USER
+RUN adduser -h $HOME -s /bin/sh -D $USER
 USER $USER
+WORKDIR $HOME
 
-#ADD . $MLAAS
-RUN git clone --depth 1 https://github.com/So-Cool/MLaaS.git $MLAAS
+ENV MLAAS="$HOME/MLaaS"
 
-USER root
-RUN pip install -r $MLAAS/requirements.txt
-RUN mkdir -p $WORK_DIR \
-  && chown $USER $WORK_DIR
+# RUN git clone --depth 1 https://github.com/So-Cool/MLaaS.git $MLAAS
+ADD . $MLAAS
 
-USER $USER
-WORKDIR $WORK_DIR
+# This Docker image has all the ML packages pre-installed
+# RUN pip install -r $MLAAS/requirements.txt
 
-ENV DATA_FILE "data_holder_13_15.pkl"
-ENV CLF_FILE "sklearn.tree.DecisionTreeClassifier(min_samples_split=3)"
-ENV FEATURES "A13, A15"
+ENV PYTHONPATH="$PYTHONPATH:$MLAAS"
+ENV DATA_FILE="data_holder_13_15.pkl" \
+  CLF_FILE="sklearn.tree.DecisionTreeClassifier(min_samples_split=3)" \
+  FEATURES="A13, A15" \
+  PORT="8080"
+
 RUN python $MLAAS/train.py -m "$CLF_FILE" -d "$DATA_FILE" -f "$FEATURES"
 
-EXPOSE 8080
-#ENTRYPOINT
+EXPOSE $PORT
 CMD python $MLAAS/mlaas/model_server.py -m "$CLF_FILE.pkl" -d $DATA_FILE -p $PORT

@@ -6,3 +6,8 @@
 *.ipynb_checkpoints
 *.pkl
 *.npy
+
+# Visualisation
+*.pdf
+*.dot
+*.svg

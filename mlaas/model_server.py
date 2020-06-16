@@ -36,9 +36,9 @@ def index():
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
-        data_class, prediction = json_prediction(data_holder, model, request.json)
-        return jsonify({data_class: prediction})
-    except Exception, e:
+        class_id, prediction = json_prediction(data_holder, model, request.json)
+        return jsonify({class_id: prediction})
+    except Exception as e:
         return jsonify({'error': str(e), 'trace': traceback.format_exc()})
 
 if __name__ == '__main__':
@@ -48,7 +48,7 @@ if __name__ == '__main__':
     config_file = args.config
     if not config_file:
         config_file = os.path.join(MLAAS_ROOT, "mlaas.config")
-    with open(config_file, "r") as f:
+    with open(config_file, "rb") as f:
         config = json.load(f)
 
     data_holder, model = load_model(args.model, args.data)

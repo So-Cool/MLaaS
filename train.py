@@ -25,4 +25,4 @@ if __name__ == "__main__":
         miss = t.evaluate_model()
         t.save_model()
     if miss is not None:
-        print miss
+        print(miss)

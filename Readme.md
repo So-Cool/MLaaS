@@ -1,6 +1,6 @@
 # Machine Learning as a Service #
 
-## Running MLaaS##
+## Running MLaaS ##
 ### Docker container ###
 ```
 docker build -t mlaas .
@@ -30,8 +30,8 @@ curl -d '[
 ```
 
 ## To do ##
-- [ ] Fix error handling (`rase`)
-- [ ] Use gunicorn
+- [ ] Fix error handling (`raise Exception("Error 42")`)
+- [ ] Use gunicorn: `pip install gunicorn`, `gunicorn mlaas/model_server:app`
 - [ ] Request authentication [stackoverflow](https://stackoverflow.com/questions/44134287/alexa-request-validation-in-python)
 - [ ] Better feature handling -- send back a request for another feature entry if it's not recognised
 - [ ] Better dialogue end and possibility to query another instances after the first one

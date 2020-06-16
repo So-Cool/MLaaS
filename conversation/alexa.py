@@ -65,7 +65,7 @@ def conversation(alexa_response):
         for feature_name in intent_features:
             feature_value = intent_features[feature_name].get("value", None)
             query_data[feature_name] = feature_value
-        print query_data
+        print(query_data)
         sys.stdout.flush()
         _, instance_class = json_prediction(data_holder, model, [query_data])
         answer = data_holder.interpret_classes(instance_class)[0]
@@ -78,7 +78,7 @@ def conversation(alexa_response):
 def alexa():
     try:
         return conversation(request.json)
-    except Exception, e:
-        print 'error', ': ', str(e)
-        print 'trace', ': ', traceback.format_exc()
+    except Exception as e:
+        print('error', ': ', str(e))
+        print('trace', ': ', traceback.format_exc())
         return get_response("Skill panic")

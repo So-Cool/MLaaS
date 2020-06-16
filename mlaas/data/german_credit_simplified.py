@@ -10,12 +10,12 @@ feature_id = ["A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9",
 class_id = "class"
 feature_map = {
     "A1": {
-        "name": "status_of_existing_checking_account",
+        "name": "status_of_existing_current_account",
         "map": {
-            "1": "... < 0 DM",
-            "2": "0 <= ... < 200 DM",
-            "3": "... >= 200 DM / salary assignments for at least 1 year",
-            "4": "no checking account"
+            "1": "overdraft on your current account",
+            "2": "less than 200 pounds on your current account",
+            "3": "at least 200 pounds on your current account",
+            "4": "no current account"
         }
     },
     "A2": {
@@ -26,11 +26,11 @@ feature_map = {
     "A3": {
         "name": "credit_history",
         "map": {
-             "0": "no credits taken/ all credits paid back duly",
-             "1": "all credits at this bank paid back duly",
-             "2": "existing credits paid back duly till now",
-             "3": "delay in paying off in the past",
-             "4": "critical account/ other credits existing (not at this bank)"
+             "0": "no loans taken or all loans paid back on time",
+             "1": "all loans at this bank paid back on time",
+             "2": "existing loans paid back on time until now",
+             "3": "delay in paying back loans in the past",
+             "4": "existing loans not at this bank"
          }
     },
     "A4": {
@@ -50,43 +50,43 @@ feature_map = {
         }
     },
     "A5": {
-        "name": "credit_amount",
+        "name": "loan_amount",
         "map": "numerical",
         "dtype": "integer"
     },
     "A6": {
-        "name": "savings_account_bond",
+        "name": "status_of_savings_account",
         "map": {
-            "1": "... < 100 DM",
-            "2": "100 <= ... < 500 DM",
-            "3": "500 <= ... < 1000 DM",
-            "4": "... >= 1000 DM",
-            "5": "unknown/ no savings account"
+            "1": "less than 100 pounds on your savings account",
+            "2": "between 100 and 500 pounds on your savings account",
+            "3": "between 500 and a 1000 pounds on your savings account",
+            "4": "at least a 1000 pounds on your savings account",
+            "5": "unknown or no savings account"
         }
     },
     "A7": {
-        "name": "present_employed_since",
+        "name": "duration_of_present_employment",
         "map": {
             "1": "unemployed",
-            "2": "... < 1 year",
-            "3": "1 <= ... < 4 years",
-            "4": "4 <= ... < 7 years",
-            "5": "... >= 7 years"
+            "2": "employed for less than 1 year",
+            "3": "employed between 1 and 4 years",
+            "4": "employed between 4 and 7 years",
+            "5": "employed for more than 7 years"
         }
     },
     "A8": {
-        "name": "installment_rate_in_percentage_of_disposable_income",
+        "name": "installment_rate",
         "map": "numerical",
         "dtype": "integer"
     },
     "A9": {
-        "name": "status_and_sex",
+        "name": "marital_status_and_gender",
         "map": {
-            "1": "male : divorced/separated",
-            "2": "female : divorced/separated/married",
-            "3": "male : single",
-            "4": "male : married/widowed",
-            "5": " female : single"
+            "1": "male (divorced or separated)",
+            "2": "female (divorced or separated or married)",
+            "3": "male (single)",
+            "4": "male (married or widowed)",
+            "5": "female (single)"
         }
     },
     "A10": {
@@ -117,19 +117,18 @@ feature_map = {
         "dtype": "integer"
     },
     "A14": {
-        "name": "other_installment_plans",
+        "name": "other_loans",
         "map": {
-            "1": "bank",
-            "2": "stores",
-            "3": "none"
+            "1": "yes",
+            "2": "no"
         }
     },
     "A15": {
-        "name": "housing",
+        "name": "housing_type",
         "map": {
             "1": "rent",
             "2": "own",
-            "3": "for free"
+            "3": "council"
         }
     },
     "A16": {
@@ -138,12 +137,12 @@ feature_map = {
         "dtype": "integer"
     },
     "A17": {
-        "name": "job",
+        "name": "job_type",
         "map": {
-            "1": "unemployed/ unskilled - non-resident",
-            "2": "unskilled - resident",
-            "3": "skilled employee / official",
-            "4": "management/ self-employed/ highly qualified employee/ officer"
+            "1": "unemployed or unskilled -- non-resident",
+            "2": "unskilled -- resident",
+            "3": "skilled employee",
+            "4": "self-employed or highly qualified employee"
         }
     },
     "A18": {
@@ -159,7 +158,7 @@ feature_map = {
         }
     },
     "A20": {
-        "name": "foreign_worker",
+        "name": "is_foreign_worker",
         "map": {
             "1": "yes",
             "2": "no"
@@ -187,7 +186,7 @@ def get_data():
     df = pd.DataFrame(gc_list, columns=feature_id+[class_id]) #.infer_objects()
 
     # identify numerical and categorical columns
-    gc_numerical_features, gc_categorical_features = identify_feature_type(feature_map, feature_id)
+    gc_numerical_features, gc_categorical_features=  identify_feature_type(feature_map, feature_id)
 
     # set the correct type of numerical features in the dataframe
     df[gc_numerical_features] = df[gc_numerical_features].apply(pd.to_numeric)
@@ -195,6 +194,10 @@ def get_data():
     # clean categorical features in the dataframe
     for i in gc_categorical_features:
         df[i] = df[i].apply(lambda x: x.split(i, 1).pop())
+
+    # Simplification
+    df["A14"] = df["A14"].replace("2", "1")
+    df["A14"] = df["A14"].replace("3", "2")
 
     return df
 

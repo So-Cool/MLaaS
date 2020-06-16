@@ -2,12 +2,12 @@ import importlib
 import pandas as pd
 import pickle
 import sklearn
-from sklearn.externals import joblib
+import joblib
 
 # retrieve the data
 def load_data(data_filename, aux_filename):
     data = pd.read_pickle(data_filename)
-    aux = pickle.load(open(aux_filename, "r"))
+    aux = pickle.load(open(aux_filename, "rb"))
     return data, aux
 
 class Trainer(object):
@@ -22,25 +22,25 @@ class Trainer(object):
 
         # Read the data
         if data_holder is not None and data_filename is None and aux_filename is None:
-            data = data_holder.dummy_data
-            data_features = data_holder.dummy_headers
-            data_class = data_holder.data_class
+            data = data_holder.data_onehot
+            data_features = data_holder.feature_id_onehot
+            class_id = data_holder.class_id
         elif data_filename is not None and aux_filename is not None and data_holder is None:
             data, aux = load_data(data_filename, aux_filename)
-            data_class = aux["class"]
+            class_id = aux["class"]
             data_features = aux["header"]
         else:
-            print "Error 42"
+            print("Error 42")
         self.data = data
         self.data_features = data_features
-        self.data_class = data_class
+        self.class_id = class_id
 
         # Train or load?
         #self.train_model()
 
     # train the model (parametrised by scikit class)
     def train_model(self):
-        self.model = self.model.fit(self.data[self.data_features], self.data[self.data_class])
+        self.model = self.model.fit(self.data[self.data_features], self.data[self.class_id])
 
     # store the model
     def save_model(self, model_filename=None):
@@ -58,5 +58,5 @@ class Trainer(object):
     def evaluate_model(self):
         y_hat = self.model.predict(self.data[self.data_features])
         y_hat = pd.Series(y_hat)
-        incorrect = self.data.index[self.data[self.data_class]!=y_hat]
+        incorrect = self.data.index[self.data[self.class_id]!=y_hat]
         return incorrect
